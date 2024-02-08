@@ -1,9 +1,6 @@
 .vscode
 __pycache__
-bot_data/models
-bot_data/outputs
-bot_data/user_voices
-bot_data/config
+bot_config/config
 bot.db
 voice_pick_tbot.egg-info
 build
