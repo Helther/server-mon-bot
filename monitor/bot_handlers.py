@@ -105,7 +105,6 @@ async def reboot_cmd(update: Update, context: CallbackContext) -> None:
 
 @user_restricted
 async def refresh_button(update: Update, context: CallbackContext) -> None:
-    """launches tts task on a already completed one from the message keyboard"""
     query = update.callback_query
     context.application.create_task(answer_query(query), update=update)
     
@@ -117,7 +116,6 @@ async def refresh_button(update: Update, context: CallbackContext) -> None:
 
 @user_restricted
 async def reboot_button(update: Update, context: CallbackContext) -> None:
-    """launches tts task on a already completed one from the message keyboard"""
     query = update.callback_query
     context.application.create_task(answer_query(query), update=update)
     
@@ -135,7 +133,6 @@ async def reboot_button(update: Update, context: CallbackContext) -> None:
 
 @user_restricted
 async def toggle_refresh_button(update: Update, context: CallbackContext) -> None:
-    """launches tts task on a already completed one from the message keyboard"""
     query = update.callback_query
     context.application.create_task(answer_query(query), update=update)
 

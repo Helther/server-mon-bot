@@ -10,21 +10,29 @@ Notifications about bot status.
  
 Tested on Ubuntu 22 for now.
 ### install
-For example, let's create new conda  environment and install bot there
+For example, let's create new conda environment and install bot there
 ```
-conda create -n bot python=3.10.6
-conda activate bot
+conda create -n mon_bot python=3.10.6
+conda activate mon_bot
 ```
 cd to repo directory and execute to install dependencies:
 ```
-python -m pip install -r ./requirements.txt
+pip install -r ./requirements.txt
 ```
 
 ### Usage
 Create configuration file named "config" inside bot_config directory
 and set user parameters. Use this [example](bot_config/config_example) as reference.
 
-Run module package voice_bot from the required environment, for example - from repo directory:
+Prerequisite notes:
+* In order to use system control functionality, bot has to be run with sudo privilleges
+* If you haven't done so, you have to install lm-sensors package and detect the required sensors
+```
+sudo apt install lm-sensors
+sudo sensors-detect
+```
+
+Run module package monitor from the required environment, for example - from repo directory:
 ```
 python -m monitor
 ```

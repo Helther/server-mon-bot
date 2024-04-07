@@ -1,17 +1,21 @@
 import psutil
 import pynvml
+from monitor.bot_utils import logger
 
 
 def get_nvidia_temps() -> dict:
     temps = {}
-    pynvml.nvmlInit()
-    deviceCount = pynvml.nvmlDeviceGetCount()
-    for i in range(deviceCount):
-        handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-        name = pynvml.nvmlDeviceGetName(handle)
-        if name:
-            temps[name] = pynvml.nvmlDeviceGetTemperature(handle, pynvml.NVML_TEMPERATURE_GPU)
-    pynvml.nvmlShutdown()
+    try:
+        pynvml.nvmlInit()
+        deviceCount = pynvml.nvmlDeviceGetCount()
+        for i in range(deviceCount):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+            name = pynvml.nvmlDeviceGetName(handle)
+            if name:
+                temps[name] = pynvml.nvmlDeviceGetTemperature(handle, pynvml.NVML_TEMPERATURE_GPU)
+        pynvml.nvmlShutdown()
+    except:
+        logger.warning("get_nvidia_temps: NVidia library failed to initialize")
     return temps
 
 
@@ -34,8 +38,7 @@ def gpu_temps_to_str(data: dict) -> str:
 
 
 def get_sensors_temperatures() -> dict:
-    fans = psutil.sensors_temperatures() if hasattr(psutil, "sensors_temperatures") else {}
-    return fans
+    return psutil.sensors_temperatures() if hasattr(psutil, "sensors_temperatures") else {}
 
 
 def temperatures_to_str(sensors_data: dict) -> str:
@@ -63,17 +66,20 @@ def get_sensors_fan_speeds() -> dict:
 
 def get_gpu_fans() -> dict:
     data = {}
-    pynvml.nvmlInit()
-    deviceCount = pynvml.nvmlDeviceGetCount()
-    for i in range(deviceCount):
-        handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-        name = pynvml.nvmlDeviceGetName(handle)
-        if name:
-            fans = []
-            for fan_i in range(pynvml.nvmlDeviceGetNumFans(handle)):
-                fans.append(pynvml.nvmlDeviceGetFanSpeed_v2(handle, fan_i))
-            data[name] = fans
-    pynvml.nvmlShutdown()
+    try:
+        pynvml.nvmlInit()
+        deviceCount = pynvml.nvmlDeviceGetCount()
+        for i in range(deviceCount):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+            name = pynvml.nvmlDeviceGetName(handle)
+            if name:
+                fans = []
+                for fan_i in range(pynvml.nvmlDeviceGetNumFans(handle)):
+                    fans.append(pynvml.nvmlDeviceGetFanSpeed_v2(handle, fan_i))
+                data[name] = fans
+        pynvml.nvmlShutdown()
+    except:
+        logger.warning("get_gpu_fans: NVidia library failed to initialize")
     return data
 
 
