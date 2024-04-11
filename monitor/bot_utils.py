@@ -11,8 +11,10 @@ DATA_PATH = os.path.realpath(os.path.join(SCRIPT_PATH, "../bot_config"))
 QUERY_PATTERN_REFRESH = "c_re"
 QUERY_PATTERN_TOGGLE_REFRESH = "c_toggle_re"
 QUERY_PATTERN_CONFIRM_REBOOT = "c_call_reboot"
+QUERY_PATTERN_CONFIRM_SHUTDOWN = "c_call_shut"
 SOURCE_WEB_LINK = "https://github.com/Helther/server-mon-bot.git"
 REBOOT_CMD_DELAY_DEFAULT = 1
+SHUTDOWN_CMD_DELAY_DEFAULT = 1
 REFRESH_RATE_DEFAULT = 5
 
 
@@ -53,6 +55,9 @@ class Config(object):
             self.update_period_seconds = config[config_section_name].get("REFRESH_RATE", REFRESH_RATE_DEFAULT)
             if self.update_period_seconds <= 0:
                 self.update_period_seconds = REFRESH_RATE_DEFAULT
+            self.shutdown_time_minutes = config[config_section_name].get("SHUTDOWN_CMD_DELAY", SHUTDOWN_CMD_DELAY_DEFAULT)
+            if self.shutdown_time_minutes <= 0:
+                self.shutdown_time_minutes = SHUTDOWN_CMD_DELAY_DEFAULT
 
 config = Config()
 

@@ -15,6 +15,8 @@ from monitor.bot_handlers import (
     refresh_button,
     toggle_refresh_button,
     reboot_button,
+    shutdown_cmd,
+    shutdown_button,
     help_cmd,
     error_handler
 )
@@ -36,6 +38,7 @@ async def init_bot_settings() -> ExtBot:
               get_updates_request=init_http_request(), rate_limiter=AIORateLimiter())
     cmds = [("print_sensors", "Display current system info"),
             ("reboot_host", "Reboot with configured delay"),
+            ("shutdown_host", "Shutdown with configured delay"),
             ("help", "Get command usage help")]
     await bot.set_my_commands(commands=cmds, language_code="en")
     if utils.config.is_user_specified():
@@ -72,10 +75,12 @@ def run_application() -> None:
     application.add_handler(CommandHandler("start", start_cmd))
     application.add_handler(CommandHandler("print_sensors", print_readouts_cmd))
     application.add_handler(CommandHandler("reboot_host", reboot_cmd))
+    application.add_handler(CommandHandler("shutdown_host", shutdown_cmd))
     application.add_handler(CommandHandler("help", help_cmd))
     application.add_handler(CallbackQueryHandler(refresh_button, pattern=f"^{utils.QUERY_PATTERN_REFRESH}*"))
     application.add_handler(CallbackQueryHandler(toggle_refresh_button, pattern=f"^{utils.QUERY_PATTERN_TOGGLE_REFRESH}*"))
     application.add_handler(CallbackQueryHandler(reboot_button, pattern=f"^{utils.QUERY_PATTERN_CONFIRM_REBOOT}*"))
+    application.add_handler(CallbackQueryHandler(shutdown_button, pattern=f"^{utils.QUERY_PATTERN_CONFIRM_SHUTDOWN}*"))
 
     application.add_error_handler(error_handler)
 

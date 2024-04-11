@@ -9,3 +9,5 @@ USER_ID = YOUR_ID_LIST
 REBOOT_CMD_DELAY = POSITIVE_NUM
 # for print_sensors auto refresh command
 REFRESH_RATE = POSITIVE_NUM
+# delay before shutdown command is executed
+SHUTDOWN_CMD_DELAY = POSITIVE_NUM

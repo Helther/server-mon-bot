@@ -50,12 +50,14 @@ def temperatures_to_str(sensors_data: dict) -> str:
     for name in names:
         res += f"\n    {name}\n"
         if name in sensors_data:
+            counter = 0
             for entry in sensors_data[name]:
                 s = "       %-40s <b>%s</b>°C\n" % (
-                    entry.label or name,
+                    entry.label or name + f"_{counter}",
                     entry.current
                 )
                 res += s
+                counter += 1
     return res
 
 
@@ -108,7 +110,9 @@ def fans_to_str(data: dict) -> str:
     for name in names:
         res += f"\n   {name}\n"
         if name in data:
+            counter = 0
             for entry in data[name]:
-                s = "        %-40s <b>%s</b> RPM\n" % (entry.label or name, entry.current)
+                s = "        %-40s <b>%s</b> RPM\n" % (entry.label or name + f"_{counter}", entry.current)
                 res += s
+                counter += 1
     return res

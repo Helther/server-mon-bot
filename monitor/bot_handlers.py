@@ -17,7 +17,8 @@ from monitor.bot_utils import (
     SOURCE_WEB_LINK,
     QUERY_PATTERN_REFRESH,
     QUERY_PATTERN_TOGGLE_REFRESH,
-    QUERY_PATTERN_CONFIRM_REBOOT
+    QUERY_PATTERN_CONFIRM_REBOOT,
+    QUERY_PATTERN_CONFIRM_SHUTDOWN
 )
 from monitor.sensors_api import (
     get_sensors_fan_speeds,
@@ -46,10 +47,10 @@ def get_sensors_text() -> str:
     temps = get_sensors_temperatures()
     gpu_temps = get_gpu_temps()
     gpu_str = gpu_temps_to_str(gpu_temps)
-    res_str = temperatures_to_str(temps)
     gpu_fans = get_gpu_fans()
     gpu_fans_str = gpu_fans_to_str(gpu_fans)
 
+    res_str = temperatures_to_str(temps)
     if gpu_str:
         res_str += '\n' + gpu_str
     res_str += '\n\n' + fans_to_str(fans)
@@ -132,6 +133,31 @@ async def reboot_button(update: Update, context: CallbackContext) -> None:
 
 
 @user_restricted
+async def shutdown_cmd(update: Update, context: CallbackContext) -> None:
+    reply = "Are you sure you want to shutdown the host?"
+    keyboard = [[InlineKeyboardButton(text="Do it!", callback_data=QUERY_PATTERN_CONFIRM_SHUTDOWN)]]
+    markup = InlineKeyboardMarkup(keyboard)
+
+    await update.message.reply_html(text=reply, reply_markup=markup)
+
+@user_restricted
+async def shutdown_button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    context.application.create_task(answer_query(query), update=update)
+    
+    ret = os.system(f"shutdown +{config.reboot_time_minutes}")
+    if ret != 0:
+        await update.effective_message.reply_html(f"Failed to execute shutdown command, please check user permissions")
+    else:
+        await update.effective_message.reply_html(f"Shutdown in {config.shutdown_time_minutes} {'minutes' if config.shutdown_time_minutes > 1 else 'minute'}...")
+        
+    try:
+        await update.effective_message.delete()
+    except TelegramError:
+        logger.error(msg="Failed to delete progress message")
+
+
+@user_restricted
 async def toggle_refresh_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     context.application.create_task(answer_query(query), update=update)
@@ -155,7 +181,8 @@ async def help_cmd(update: Update, context: CallbackContext) -> None:
     log_cmd(user, "help_cmd")
     help_msg = ("Bot usage: select from the menu or type commands to interact with the bot. List of commands:\n\n"
                 "<u>print_sensors</u> - display current sensor readouts on host machine\n\n"
-                "<u>reboot_host</u> - attempt to execute reboot on host machine (root access required)\n\n"
+                "<u>reboot_host</u> - attempt to execute reboot on host machine (root access required, default 1 minute)\n\n"
+                "<u>shutdown_host</u> - attempt to shutdown host machine (root access required, default 1 minute)\n\n"
                 f"Take a look at source code for additional info, or to try it out yourself at<a href='{SOURCE_WEB_LINK}'>GitHub</a>")
     await update.message.reply_html(help_msg, disable_web_page_preview=True)
 
