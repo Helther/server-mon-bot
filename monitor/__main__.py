@@ -21,12 +21,14 @@ from monitor.bot_handlers import (
     error_handler
 )
 import monitor.bot_utils as utils
+from monitor.sensor_watch import sensor_action_config, on_check_sensors, SENSOR_WATCH_JOB_NAME
 import requests
 import signal
 
 
 def initialize_bot_config() -> None:
     utils.config.load_config(os.path.join(utils.DATA_PATH, utils.CONFIG_FILE_NAME))
+    sensor_action_config.load_config()
 
 
 def init_http_request() -> request.HTTPXRequest:
@@ -83,6 +85,7 @@ def run_application() -> None:
     application.add_handler(CallbackQueryHandler(shutdown_button, pattern=f"^{utils.QUERY_PATTERN_CONFIRM_SHUTDOWN}*"))
 
     application.add_error_handler(error_handler)
+    application.job_queue.run_repeating(on_check_sensors, utils.config.sensor_watch_time, name=SENSOR_WATCH_JOB_NAME)
 
     application.run_polling(stop_signals=[signal.SIGINT, signal.SIGTERM])
 

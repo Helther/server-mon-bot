@@ -1,6 +1,7 @@
 .vscode
 __pycache__
 bot_config/config
+bot_config/sensor_actions_config
 bot.db
 voice_pick_tbot.egg-info
 build

@@ -18,7 +18,8 @@ from monitor.bot_utils import (
     QUERY_PATTERN_REFRESH,
     QUERY_PATTERN_TOGGLE_REFRESH,
     QUERY_PATTERN_CONFIRM_REBOOT,
-    QUERY_PATTERN_CONFIRM_SHUTDOWN
+    QUERY_PATTERN_CONFIRM_SHUTDOWN,
+    AUTO_REFRESH_JOB_NAME
 )
 from monitor.sensors_api import (
     get_sensors_fan_speeds,
@@ -168,11 +169,11 @@ async def toggle_refresh_button(update: Update, context: CallbackContext) -> Non
     except TelegramError:  # causes error when message has not changed, ignore
         pass
 
-    if context.job_queue.jobs():
-        await context.job_queue.stop()
-        await context.job_queue.start()
+    job = context.job_queue.get_jobs_by_name(AUTO_REFRESH_JOB_NAME)
+    if len(job) != 0:
+        job[0].schedule_removal()
     else:
-        context.job_queue.run_repeating(on_auto_refresh, config.update_period_seconds, data=update.effective_message)
+        context.job_queue.run_repeating(on_auto_refresh, config.update_period_seconds, data=update.effective_message, name=AUTO_REFRESH_JOB_NAME)
 
 
 @user_restricted
@@ -183,7 +184,7 @@ async def help_cmd(update: Update, context: CallbackContext) -> None:
                 "<u>print_sensors</u> - display current sensor readouts on host machine\n\n"
                 "<u>reboot_host</u> - attempt to execute reboot on host machine (root access required, default 1 minute)\n\n"
                 "<u>shutdown_host</u> - attempt to shutdown host machine (root access required, default 1 minute)\n\n"
-                f"Take a look at source code for additional info, or to try it out yourself at<a href='{SOURCE_WEB_LINK}'>GitHub</a>")
+                f"Take a look at source code for additional info, or to try it out yourself at <a href='{SOURCE_WEB_LINK}'>GitHub</a>")
     await update.message.reply_html(help_msg, disable_web_page_preview=True)
 
 

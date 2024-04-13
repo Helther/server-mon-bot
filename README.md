@@ -1,4 +1,4 @@
-# Server Monitor Bot
+# System Monitor Bot
 This bot provides the ability to display current readings from host hardware sensors.  
 Periodic updates can be enabled for a readout message.  
 Notifications about bot status.  
@@ -38,11 +38,9 @@ python -m monitor
 ```
 
 ### TODO
- * Configure actions like notifications or auto system reboot in case of undesired sensor reading.  
  * Add AMD gpu sensor monitor
  * Add mdstat monitor for raid arrays
  * Add comprehensive system info (load, uptime, hardware usage, hardware stats)
- * Windows support
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

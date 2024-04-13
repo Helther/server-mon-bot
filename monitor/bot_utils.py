@@ -16,7 +16,9 @@ SOURCE_WEB_LINK = "https://github.com/Helther/server-mon-bot.git"
 REBOOT_CMD_DELAY_DEFAULT = 1
 SHUTDOWN_CMD_DELAY_DEFAULT = 1
 REFRESH_RATE_DEFAULT = 5
-
+AUTO_REFRESH_JOB_NAME = "auto_refresh_job"
+SENSOR_WATCH_REFRESH_RATE_DEFAULT = 5
+SENSOR_WATCH_THRESHOLD_DEFAULT = 1
 
 # Enable logging
 logging.basicConfig(
@@ -32,6 +34,9 @@ class Config(object):
         self.user_id_set: set = set()
         self.reboot_time_minutes = 0
         self.update_period_seconds = 0
+        self.shutdown_time_minutes = 0
+        self.sensor_watch_time = 0
+        self.sensor_watch_threshold = 0
 
     def is_user_specified(self) -> bool:
         return len(self.user_id_set) != 0
@@ -58,6 +63,12 @@ class Config(object):
             self.shutdown_time_minutes = config[config_section_name].get("SHUTDOWN_CMD_DELAY", SHUTDOWN_CMD_DELAY_DEFAULT)
             if self.shutdown_time_minutes <= 0:
                 self.shutdown_time_minutes = SHUTDOWN_CMD_DELAY_DEFAULT
+            self.sensor_watch_time = config[config_section_name].get("SENSOR_WATCH_REFRESH_RATE", SENSOR_WATCH_REFRESH_RATE_DEFAULT)
+            if self.sensor_watch_time <= 0:
+                self.sensor_watch_time = SENSOR_WATCH_REFRESH_RATE_DEFAULT
+            self.sensor_watch_threshold = config[config_section_name].get("SENSOR_WATCH_THRESHOLD", SENSOR_WATCH_THRESHOLD_DEFAULT)
+            if self.sensor_watch_threshold <= 0:
+                self.sensor_watch_threshold = SENSOR_WATCH_THRESHOLD_DEFAULT
 
 config = Config()
 

@@ -18,7 +18,7 @@ class Sensor:
                 )
 
     def config_name(self) -> str:
-        return f"{self.name}.{self.label}"
+        return f"{self.name}.{self.label}".lower()
 
 
 def get_nvidia_temps() -> dict[str, Sensor]:

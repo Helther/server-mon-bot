@@ -5,9 +5,13 @@ TOKEN = YOUR_BOT_TOKEN
 USER_ID = YOUR_ID_LIST
 # for multiple users use following format: USER_ID = some_id_numer1, some_id_number2
 
-# delay before reboot for reboot_host command
+# delay before reboot for reboot_host command in minutes
 REBOOT_CMD_DELAY = POSITIVE_NUM
-# for print_sensors auto refresh command
+# for print_sensors auto refresh command in seconds
 REFRESH_RATE = POSITIVE_NUM
-# delay before shutdown command is executed
+# delay before shutdown command is executed in minutes
 SHUTDOWN_CMD_DELAY = POSITIVE_NUM
+# period between sensor reading checks in seconds
+SENSOR_WATCH_REFRESH_RATE = POSITIVE_NUM
+# number of unsucessfull checks before action is triggered
+SENSOR_WATCH_THRESHOLD = POSITIVE_NUM
