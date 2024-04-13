@@ -91,7 +91,7 @@ def get_sensors_fan_speeds() -> dict[str, Sensor]:
         if name in data:
             counter = 0
             for entry in data[name]:
-                s = Sensor(name, entry.label or name + f"_{counter}", entry.current, "RPM")
+                s = Sensor(name, entry.label or name + f"_fan{counter}", entry.current, "RPM")
                 res[s.config_name()] = s
                 counter += 1
     return res
