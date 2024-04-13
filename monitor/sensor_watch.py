@@ -84,7 +84,15 @@ class ConfigEntry:
         else:
             return self.value > value
         
-    def trigger_action(self, value):
+    def get_condition_str(self) -> str:
+        if self.condition == Condition.ExclusiveRange:
+            return "in range"
+        elif self.condition == Condition.Less:
+            return "less than"
+        else:
+            return "more than"
+        
+    def trigger_action(self, value: float) -> None:
         self.failed_condition_num = 0
         if self.triggered:
             return
@@ -105,7 +113,7 @@ class ConfigEntry:
         if self.action & Action.Notify:
             if config.is_user_specified():
                 for user_id in config.user_id_set:
-                    msg =f"Sensor Watcher Warning: sensor <b>\"{self.name}\"</b> with reading <b>{value}</b> is outside configured value <b>{self.value}</b>"
+                    msg =f"Sensor Watcher Warning: sensor <b>\"{self.name}\"</b> with reading <b>{value}</b> is outside configured: {self.get_condition_str()} <b>{self.value}</b>"
                     if postfix:
                         msg += f"\n{postfix}"
                     payload = {
