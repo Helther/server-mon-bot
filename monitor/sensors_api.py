@@ -3,7 +3,25 @@ import pynvml
 from monitor.bot_utils import logger
 
 
-def get_nvidia_temps() -> dict:
+class Sensor:
+    def __init__(self, name: str, label: str, value: float, units: str) -> None:
+        self.name: str = name
+        self.label: str = label
+        self.value: float = value
+        self.units: str = units
+
+    def __str__(self) -> str:
+        return "       %-40s <b>%s</b>%s\n" % (
+                    self.label or self.name,
+                    self.value,
+                    self.units
+                )
+
+    def config_name(self) -> str:
+        return f"{self.name}.{self.label}"
+
+
+def get_nvidia_temps() -> dict[str, Sensor]:
     temps = {}
     try:
         pynvml.nvmlInit()
@@ -12,7 +30,7 @@ def get_nvidia_temps() -> dict:
             handle = pynvml.nvmlDeviceGetHandleByIndex(i)
             name = pynvml.nvmlDeviceGetName(handle)
             if name:
-                temps[name] = pynvml.nvmlDeviceGetTemperature(handle, pynvml.NVML_TEMPERATURE_GPU)
+                temps[name] = (Sensor(name, name, pynvml.nvmlDeviceGetTemperature(handle, pynvml.NVML_TEMPERATURE_GPU), "°C"))
         pynvml.nvmlShutdown()
     except:
         logger.warning("get_nvidia_temps: NVidia library failed to initialize")
@@ -23,13 +41,13 @@ def get_gpu_temps() -> dict:
     return get_nvidia_temps()  # TODO add Radeon
 
 
-def gpu_temps_to_str(data: dict) -> str:
+def gpu_temps_to_str(data: dict[str, Sensor]) -> str:
     res = ""
     if not data:
-        return res
+        return "can't read any GPU info"
 
-    for name, value in data.items():
-        res += f"   {name}  <b>{value}</b>°C\n"
+    for value in data.values():
+        res += str(value)
 
     if res:
         res = "GPU Temperatures:\n" + res
@@ -37,36 +55,63 @@ def gpu_temps_to_str(data: dict) -> str:
     return res
 
 
-def get_sensors_temperatures() -> dict:
-    return psutil.sensors_temperatures() if hasattr(psutil, "sensors_temperatures") else {}
+def get_sensors_temperatures() -> dict[str, Sensor]:
+    sensors_data = psutil.sensors_temperatures() if hasattr(psutil, "sensors_temperatures") else {}
+    names = set(list(sensors_data.keys()))
+    res = {}
+    for name in names:
+        counter = 0
+        for entry in sensors_data[name]:
+            s = Sensor(name, entry.label or name + f"_{counter}", entry.current, "°C")
+            res[s.config_name()] = s
+            counter += 1
+
+    return res
 
 
-def temperatures_to_str(sensors_data: dict) -> str:
+def temperatures_to_str(sensors_data: dict[str, Sensor]) -> str:
     if not sensors_data:
         return "can't read any temperature info"
 
     res = "Temperatures:\n"
-    names = set(list(sensors_data.keys()))
+    last_name = None
+    for sensor in sensors_data.values():
+        if not last_name or last_name != sensor.name:
+            last_name = sensor.name
+            res += f"\n    {sensor.name}\n"
+        res += str(sensor)
+    return res
+
+
+def get_sensors_fan_speeds() -> dict[str, Sensor]:
+    data = psutil.sensors_fans() if hasattr(psutil, "sensors_fans") else {}
+    res = {}
+    names = set(list(data.keys()))
     for name in names:
-        res += f"\n    {name}\n"
-        if name in sensors_data:
+        if name in data:
             counter = 0
-            for entry in sensors_data[name]:
-                s = "       %-40s <b>%s</b>°C\n" % (
-                    entry.label or name + f"_{counter}",
-                    entry.current
-                )
-                res += s
+            for entry in data[name]:
+                s = Sensor(name, entry.label or name + f"_{counter}", entry.current, "RPM")
+                res[s.config_name()] = s
                 counter += 1
     return res
 
 
-def get_sensors_fan_speeds() -> dict:
-    fans = psutil.sensors_fans() if hasattr(psutil, "sensors_fans") else {}
-    return fans
+def fans_to_str(data: dict[str, Sensor]) -> str:
+    if not data:
+        return "can't read any fans info"
+        
+    res = "Fans speeds:\n"
+    last_name = None
+    for sensor in data.values():
+        if not last_name or last_name != sensor.name:
+            last_name = sensor.name
+            res += f"\n    {sensor.name}\n"
+        res += str(sensor)
+    return res
 
 
-def get_gpu_fans() -> dict:
+def get_gpu_fans() -> dict[str, Sensor]:
     data = {}
     try:
         pynvml.nvmlInit()
@@ -77,42 +122,34 @@ def get_gpu_fans() -> dict:
             if name:
                 fans = []
                 for fan_i in range(pynvml.nvmlDeviceGetNumFans(handle)):
-                    fans.append(pynvml.nvmlDeviceGetFanSpeed_v2(handle, fan_i))
-                data[name] = fans
+                    s = Sensor(name, f"fan{fan_i}", pynvml.nvmlDeviceGetFanSpeed_v2(handle, fan_i), "%")
+                    data[s.config_name()] = s
         pynvml.nvmlShutdown()
     except:
         logger.warning("get_gpu_fans: NVidia library failed to initialize")
     return data
 
 
-def gpu_fans_to_str(data: dict[str, list]) -> str:
+def gpu_fans_to_str(data: dict[str, Sensor]) -> str:
     res = ""
     if not data:
         return res
 
-    for name, value in data.items():
-        res += f"   {name}\n"
-        for i, fan in enumerate(value):
-            res += "        fan%-40s <b>%s</b> %s\n" % (i, fan, '%')
+    last_name = None
+    for sensor in data.values():
+        if not last_name or last_name != sensor.name:
+            last_name = sensor.name
+            res += f"\n    {sensor.name}\n"
+        res += str(sensor)
 
     if res:
         res = "GPU Fans:\n" + res
 
     return res
 
-
-def fans_to_str(data: dict) -> str:
-    if not data:
-        return "can't read any fans info"
-        
-    res = "Fans speeds:\n"
-    names = set(list(data.keys()))
-    for name in names:
-        res += f"\n   {name}\n"
-        if name in data:
-            counter = 0
-            for entry in data[name]:
-                s = "        %-40s <b>%s</b> RPM\n" % (entry.label or name + f"_{counter}", entry.current)
-                res += s
-                counter += 1
+def get_all_sensors() -> dict[str, Sensor]:
+    res = get_sensors_fan_speeds()
+    res |= get_sensors_temperatures()
+    res |= get_gpu_temps()
+    res |= get_gpu_fans()
     return res
