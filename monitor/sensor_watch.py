@@ -103,7 +103,7 @@ class ConfigEntry:
             if self.action & Action.Reboot:
                 cmd += "-r"
             cmd += f" +{config.reboot_time_minutes}"
-            ret = os.system(f"shutdown -r +{config.reboot_time_minutes}")
+            ret = os.system(cmd)
             if ret != 0:
                 postfix = "Failed to execute system action command, please check user permissions"
                 logger.warn(postfix)
