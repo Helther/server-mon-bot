@@ -174,6 +174,7 @@ async def on_check_sensors(context: CallbackContext):
         if sensor:
             if action_item.check_condition(sensor.value):
                 action_item.triggered = False
+                action_item.failed_condition_num = 0
             else:
                 action_item.failed_condition_num += 1
                 if action_item.failed_condition_num >= config.sensor_watch_threshold:

@@ -54,19 +54,19 @@ class Config(object):
                 for id in user_ids:
                     self.user_id_set.add(int(id)) 
 
-            self.reboot_time_minutes = config[config_section_name].get("REBOOT_CMD_DELAY", REBOOT_CMD_DELAY_DEFAULT)
+            self.reboot_time_minutes = int(config[config_section_name].get("REBOOT_CMD_DELAY", REBOOT_CMD_DELAY_DEFAULT))
             if self.reboot_time_minutes <= 0:
                 self.reboot_time_minutes = REBOOT_CMD_DELAY_DEFAULT
-            self.update_period_seconds = config[config_section_name].get("REFRESH_RATE", REFRESH_RATE_DEFAULT)
+            self.update_period_seconds = int(config[config_section_name].get("REFRESH_RATE", REFRESH_RATE_DEFAULT))
             if self.update_period_seconds <= 0:
                 self.update_period_seconds = REFRESH_RATE_DEFAULT
-            self.shutdown_time_minutes = config[config_section_name].get("SHUTDOWN_CMD_DELAY", SHUTDOWN_CMD_DELAY_DEFAULT)
+            self.shutdown_time_minutes = int(config[config_section_name].get("SHUTDOWN_CMD_DELAY", SHUTDOWN_CMD_DELAY_DEFAULT))
             if self.shutdown_time_minutes <= 0:
                 self.shutdown_time_minutes = SHUTDOWN_CMD_DELAY_DEFAULT
-            self.sensor_watch_time = config[config_section_name].get("SENSOR_WATCH_REFRESH_RATE", SENSOR_WATCH_REFRESH_RATE_DEFAULT)
+            self.sensor_watch_time = int(config[config_section_name].get("SENSOR_WATCH_REFRESH_RATE", SENSOR_WATCH_REFRESH_RATE_DEFAULT))
             if self.sensor_watch_time <= 0:
                 self.sensor_watch_time = SENSOR_WATCH_REFRESH_RATE_DEFAULT
-            self.sensor_watch_threshold = config[config_section_name].get("SENSOR_WATCH_THRESHOLD", SENSOR_WATCH_THRESHOLD_DEFAULT)
+            self.sensor_watch_threshold = int(config[config_section_name].get("SENSOR_WATCH_THRESHOLD", SENSOR_WATCH_THRESHOLD_DEFAULT))
             if self.sensor_watch_threshold <= 0:
                 self.sensor_watch_threshold = SENSOR_WATCH_THRESHOLD_DEFAULT
 
